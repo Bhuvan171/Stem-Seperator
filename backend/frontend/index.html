@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Stem Separator</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- Icon sprite (Phosphor-style outline icons, hand-authored, no CDN) -->
+<svg style="display:none" aria-hidden="true">
+  <symbol id="icon-waveform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M2 12h2l2-7 3 14 3-10 2 5 2-3 2 4h4"/>
+  </symbol>
+  <symbol id="icon-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 5v14M5 12h14"/>
+  </symbol>
+  <symbol id="icon-arrow-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M19 12H5M11 18l-6-6 6-6"/>
+  </symbol>
+  <symbol id="icon-upload" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 16V4M7 9l5-5 5 5M4 20h16"/>
+  </symbol>
+  <symbol id="icon-music" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/>
+  </symbol>
+  <symbol id="icon-cpu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3"/><rect x="9" y="9" width="6" height="6" rx="1"/>
+  </symbol>
+  <symbol id="icon-play" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+    <path d="M8 5.5v13l11-6.5z"/>
+  </symbol>
+  <symbol id="icon-pause" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+    <rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/>
+  </symbol>
+  <symbol id="icon-mute" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M11 5 6 9H3v6h3l5 4V5z"/><path d="M17 9l4 6M21 9l-4 6"/>
+  </symbol>
+  <symbol id="icon-solo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="8" r="4"/><path d="M4 20c0-3.5 3.5-6 8-6s8 2.5 8 6"/>
+  </symbol>
+  <symbol id="icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M20 6 9 17l-5-5"/>
+  </symbol>
+  <symbol id="icon-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 9v4M12 17h.01M10.3 3.86 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.86a2 2 0 0 0-3.4 0Z"/>
+  </symbol>
+  <symbol id="icon-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/>
+  </symbol>
+  <symbol id="icon-download" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 4v12M7 11l5 5 5-5M4 20h16"/>
+  </symbol>
+  <symbol id="icon-bolt" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+    <path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/>
+  </symbol>
+</svg>
+
+<div id="app">
+
+  <header>
+    <h1><svg class="icon"><use href="#icon-waveform"/></svg> Stem Separator</h1>
+    <p class="subtitle">6-stem GPU source separation</p>
+  </header>
+
+  <!-- LIBRARY -->
+  <section id="view-library" class="view">
+    <div class="toolbar">
+      <span class="toolbar-title">Library</span>
+      <button id="btn-new" class="btn btn-primary btn-sm"><svg class="icon"><use href="#icon-plus"/></svg> Upload</button>
+    </div>
+
+    <div class="section-label">Ready to Separate</div>
+    <ul id="local-track-list" class="track-list"></ul>
+    <p id="local-tracks-empty" class="empty hidden">Drop audio files into the <code>test_tracks/</code> folder to see them here.</p>
+
+    <div class="section-label">History</div>
+    <ul id="library-list" class="job-list"></ul>
+    <p id="library-empty" class="empty hidden">No separations yet.</p>
+  </section>
+
+  <!-- IMPORT -->
+  <section id="view-import" class="view hidden">
+    <div class="toolbar">
+      <button id="btn-back-from-import" class="btn btn-text"><svg class="icon"><use href="#icon-arrow-left"/></svg> Back</button>
+      <span class="toolbar-title">Upload</span>
+      <span style="width:60px"></span>
+    </div>
+    <label class="dropzone" for="file-input">
+      <svg class="icon"><use href="#icon-upload"/></svg>
+      <span>Choose an audio file</span>
+      <input id="file-input" type="file" accept="audio/*" />
+    </label>
+  </section>
+
+  <!-- PROCESSING -->
+  <section id="view-processing" class="view hidden">
+    <div class="toolbar">
+      <span class="toolbar-title">Processing</span>
+      <span class="badge-group">
+        <span id="processing-engine-badge"></span>
+        <span id="processing-quality-badge"></span>
+      </span>
+    </div>
+    <div class="processing-body">
+      <p id="processing-filename" class="filename"></p>
+
+      <div class="progress-block hidden" id="upload-block">
+        <div class="progress-label"><span>Uploading to server</span><span id="upload-pct">0%</span></div>
+        <div class="progress-bar"><div id="upload-fill" class="progress-fill"></div></div>
+      </div>
+
+      <div class="stage-stepper" id="stage-stepper"></div>
+
+      <p id="processing-error" class="error hidden"></p>
+    </div>
+  </section>
+
+  <!-- RESULT -->
+  <section id="view-result" class="view hidden">
+    <div class="toolbar">
+      <button id="btn-back-from-result" class="btn btn-text"><svg class="icon"><use href="#icon-arrow-left"/></svg> Library</button>
+      <span class="badge-group">
+        <span id="result-engine-badge"></span>
+        <span id="result-quality-badge"></span>
+      </span>
+    </div>
+    <div class="result-header">
+      <span id="result-filename" class="result-filename"></span>
+    </div>
+
+    <div class="transport">
+      <button id="btn-playpause" class="transport-play" aria-label="Play">
+        <svg class="icon" id="playpause-icon"><use href="#icon-play"/></svg>
+      </button>
+      <input id="seek" type="range" min="0" max="100" value="0" step="0.1" aria-label="Seek" />
+      <span id="time-display">0:00 / 0:00</span>
+    </div>
+
+    <div id="stem-list" class="stem-list"></div>
+  </section>
+
+</div>
+
+<!-- Quality picker bottom sheet (shown when separating a local test track) -->
+<div id="quality-sheet-backdrop" class="choice-sheet-backdrop hidden">
+  <div class="choice-sheet">
+    <h3>Separate track</h3>
+    <p class="filename" id="quality-sheet-filename"></p>
+    <div class="choice-options">
+      <button class="choice-option" data-quality="fast">
+        <svg class="icon"><use href="#icon-bolt"/></svg>
+        <span><strong>Fast</strong><span>Compressed upload &mdash; quicker to start, near-identical separation quality</span></span>
+      </button>
+      <button class="choice-option" data-quality="lossless">
+        <svg class="icon"><use href="#icon-waveform"/></svg>
+        <span><strong>Lossless</strong><span>Original-quality upload &mdash; slower to start, maximum fidelity</span></span>
+      </button>
+    </div>
+    <button id="quality-sheet-cancel" class="btn btn-text">Cancel</button>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

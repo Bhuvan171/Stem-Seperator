@@ -1,0 +1,90 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: musicapp
+      POSTGRES_PASSWORD: musicapp
+      POSTGRES_DB: musicapp
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U musicapp"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build: ./backend
+    environment:
+      MUSICAPP_DATABASE_URL: postgresql://musicapp:musicapp@postgres:5432/musicapp
+      MUSICAPP_REDIS_URL: redis://redis:6379/0
+      MUSICAPP_SEPARATOR_MODE: ${SEPARATOR:-real}
+      MUSICAPP_TEST_TRACKS_DIR: /app/test_tracks
+      MUSICAPP_GPU_SSH_HOST: ${GPU_SSH_HOST:-192.168.3.20}
+      MUSICAPP_GPU_SSH_USER: ${GPU_SSH_USER:-bhuvan23171}
+      MUSICAPP_GPU_SSH_KEY_PATH: /secrets/gpu_key
+      MUSICAPP_GPU_REMOTE_WORKDIR: ${GPU_REMOTE_WORKDIR:-/home/bhuvan23171/stem-separation-validation}
+      MUSICAPP_GPU_DEVICE_ID: ${GPU_DEVICE_ID:-1}
+    ports:
+      - "8000:8000"
+    volumes:
+      - storage_data:/app/storage
+      - ./test_tracks:/app/test_tracks
+      - ${GPU_SSH_KEY:-~/.ssh/id_ed25519}:/secrets/gpu_key:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  worker:
+    build: ./backend
+    command: ["python", "-m", "app.worker.run"]
+    environment:
+      MUSICAPP_DATABASE_URL: postgresql://musicapp:musicapp@postgres:5432/musicapp
+      MUSICAPP_REDIS_URL: redis://redis:6379/0
+      MUSICAPP_SEPARATOR_MODE: ${SEPARATOR:-real}
+      MUSICAPP_TEST_TRACKS_DIR: /app/test_tracks
+      MUSICAPP_GPU_SSH_HOST: ${GPU_SSH_HOST:-192.168.3.20}
+      MUSICAPP_GPU_SSH_USER: ${GPU_SSH_USER:-bhuvan23171}
+      MUSICAPP_GPU_SSH_KEY_PATH: /secrets/gpu_key
+      MUSICAPP_GPU_REMOTE_WORKDIR: ${GPU_REMOTE_WORKDIR:-/home/bhuvan23171/stem-separation-validation}
+      MUSICAPP_GPU_DEVICE_ID: ${GPU_DEVICE_ID:-1}
+    volumes:
+      - storage_data:/app/storage
+      - ./test_tracks:/app/test_tracks
+      - ${GPU_SSH_KEY:-~/.ssh/id_ed25519}:/secrets/gpu_key:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  cleanup:
+    build: ./backend
+    command: ["sh", "-c", "while true; do python -m app.cleanup; sleep 86400; done"]
+    environment:
+      MUSICAPP_DATABASE_URL: postgresql://musicapp:musicapp@postgres:5432/musicapp
+      MUSICAPP_REDIS_URL: redis://redis:6379/0
+      MUSICAPP_RETENTION_DAYS: ${RETENTION_DAYS:-7}
+    volumes:
+      - storage_data:/app/storage
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+  storage_data:

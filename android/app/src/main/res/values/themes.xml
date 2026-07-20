@@ -1,0 +1,7 @@
+<resources>
+    <style name="Theme.StemSeparator" parent="android:Theme.Material.NoActionBar">
+        <item name="android:statusBarColor">@android:color/white</item>
+        <item name="android:windowBackground">@android:color/white</item>
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
+</resources>

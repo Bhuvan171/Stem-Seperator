@@ -1,0 +1,16 @@
+.env
+test_tracks/
+
+# Android
+android/local.properties
+android/.gradle/
+android/build/
+android/app/build/
+android/.idea/
+android/*.iml
+android/captures/
+android/.cxx/
+android/gradle.properties.local
+*.keystore
+*.jks
+keystore.properties
